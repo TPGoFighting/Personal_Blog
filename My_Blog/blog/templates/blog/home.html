@@ -1,0 +1,49 @@
+{% extends 'blog/base.html' %}
+{% load markdown_extras %} {% block content %}
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="display-6" style="font-family: 'Noto Sans SC', sans-serif; font-weight: 600; letter-spacing: 0.5px;">Welcome to TP's blog!</h1>
+      {% if query %}
+        <p class="text-muted">
+          正在搜索包含 "<strong>{{ query }}</strong>" 的文章：
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+   {% for post in posts %}
+  <div class="col-md-6 mb-4">
+    <div class="content-section post-card h-100 d-flex flex-column">
+      
+      <div class="post-header">
+        <a href="{% url 'post-detail' post.pk %}" class="post-title">
+          {{ post.title }}
+        </a>
+      </div>
+
+      <div class="post-excerpt flex-grow-1">
+          {{ post.content|markdown|striptags|truncatechars:120 }}
+      </div>
+
+      <div class="post-footer d-flex justify-content-between align-items-center">
+        <small class="text-muted">
+          <i class="bi bi-clock me-1"></i>{{ post.beijing_created_at|date:'Y年m月d日 H:i' }}
+        </small>
+        <div class="btn-group gap-2">
+          <a href="{% url 'post-update' post.pk %}?next={{ request.get_full_path }}" class="btn-action edit">编辑</a>
+          <a href="{% url 'post-delete' post.pk %}?next={{ request.get_full_path }}" class="btn-action delete">删除</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+{% empty %}
+  <div class="col-12 text-center py-5">
+    <div class="content-section">
+      <p class="text-muted mb-0">暂时没有找到文章。 <a href="{% url 'home' %}" class="text-primary text-decoration-none">返回首页</a></p>
+    </div>
+  </div>
+{% endfor %}
+  </div>
+{% endblock %}

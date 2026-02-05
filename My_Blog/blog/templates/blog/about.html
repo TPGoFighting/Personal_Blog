@@ -1,0 +1,56 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+{% block content %}
+  <div class="content-section">
+    <div class="row align-items-center">
+      <div class="col-md-3 text-center mb-4 mb-md-0">
+        <img src="{% static 'blog/images/logo2.png' %}" class="rounded-circle img-fluid shadow-sm" style="width: 150px; height: 150px; object-fit: cover;" alt="TP" />
+      </div>
+      <div class="col-md-9">
+        <h2 class="fw-bold">关于 加油T小P</h2>
+        <p class="text-muted">Stay Hungry, Stay Foolish.</p>
+        <div class="mt-4" style="line-height: 1.8; color: #4a5568; text-align: justify;">
+          <p class="mb-3">
+            大家好，我是 <strong>TP</strong>，目前在南京邮电大学读软件工程专业，大二在读。
+          </p>
+
+          <p class="mb-3">
+            我一直对技术很感兴趣，尤其想学<strong>机器学习、人工智能、机器人和计算机视觉</strong>。现在我主要在钻研三维视觉，平时会接触 Open3D、Pointnet 和 Pointnet++ 等算法。在处理三维数据、调参和解决问题的过程中，我不断积累着实战经验。
+          </p>
+
+          <p class="mb-3">开这个博客是为了记录学习点滴，分享三维视觉的干货、避坑指南以及对专业课的思考。内容都很实在，没有花哨的表达。</p>
+
+          <p>我知道这些领域充满挑战，自己也还在摸索阶段。希望能在这里遇到志同道合的朋友，一起分享经验、答疑解惑，共同进步！</p>
+        </div>
+        <div class="mt-4">
+          <h5 class="fw-semibold">技术栈</h5>
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3">Python / Django</span>
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Java / C++</span>
+            <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3">Machine Learning</span>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h5 class="fw-semibold">联系我</h5>
+          <div class="d-flex gap-3">
+            <a href="https://github.com/TPGoFighting" target="_blank" class="text-secondary fs-4"><i class="bi bi-github"></i></a>
+            <a href="mailto:tpgofighting@163.com" class="text-secondary fs-4"><i class="bi bi-envelope-at"></i></a>
+            <a href="#" class="text-secondary fs-4" data-bs-toggle="modal" data-bs-target="#wechatModal"><i class="bi bi-wechat"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="wechatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content text-center" style="border-radius: 15px;">
+        <div class="modal-body p-4">
+          <h6 class="mb-3">扫一扫添加我的微信</h6>
+          <img src="{% static 'blog/images/wechat_qr.jpg' %}" class="img-fluid rounded" alt="微信二维码" />
+          <button type="button" class="btn btn-sm btn-secondary mt-3 w-100" data-bs-dismiss="modal">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
