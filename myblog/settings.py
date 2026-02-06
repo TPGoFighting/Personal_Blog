@@ -25,16 +25,19 @@ SECRET_KEY = "django-insecure-crjg6@e9=0j8dt^brk%yi!k*7)&^8u@cixmfw=v+g&a9w0s*40
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
-import dj_database_url
+# 默认使用 SQLite（本地开发用），如果有环境变量则使用 PostgreSQL（云端用）
 DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3', 
-        conn_max_age=600
-    )
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    }
 }
 
+# 如果在 Railway 环境中，自动替换为 PostgreSQL 配置
+if os.getenv("DATABASE_URL"):
+    DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 # Application definition
 
 INSTALLED_APPS = [
@@ -49,7 +52,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -134,4 +137,4 @@ STATICFILES_DIRS = [
 ]
 
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / "staticfiles"
