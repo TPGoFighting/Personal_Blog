@@ -140,3 +140,11 @@ STATICFILES_DIRS = [
 
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+# 必须包含 https:// 开头的完整域名
+CSRF_TRUSTED_ORIGINS = [
+    "https://tpgofighting.top",
+    "https://www.tpgofighting.top",
+    "https://*.railway.app",  # 这样可以兼容 Railway 自动生成的测试域名
+]
