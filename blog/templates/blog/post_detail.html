@@ -1,42 +1,41 @@
-{% extends 'blog/base.html' %}
-{% load markdown_extras %} {% block title %}
+{% extends 'blog/base.html' %} {% load markdown_extras %} {% block title %}
   {{ post.title }}
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
   <style>
     /* 1. 初始状态：标准阅读模式 */
+    
     #main-column {
       transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
       margin: 0 auto;
       width: 100%;
     }
     
-    .view-mode-single {
+    .view-mode-standard {
       max-width: 1050px !important;
     }
+    /* 2. 【核心修改】全屏模式 */
     
-    /* 2. 【核心修改】全屏双列模式 */
-    .view-mode-double {
+    .view-mode-wide {
       /* 使用 vw (viewport width) 占据屏幕 95% 的宽度 */
-      max-width: 95vw !important;
+      max-width: 75vw !important;
       /* 如果你的 base.html 里有 container 限制，下面这行能强行突破 */
-      width: 95vw !important;
+      width: 75vw !important;
     }
-    
-    /* 3. 双列间距微调 */
-    .columns-2 {
-      column-count: 2;
-      column-gap: 80px; /* 间距加到 80px，因为屏幕更宽了 */
-      column-rule: 1px solid #eef2f7;
-    }
-    
+    /* 3. 双列间距微调 
+            .columns-2 {
+              column-count: 2;
+              column-gap: 80px; 
+              column-rule: 1px solid #eef2f7;
+            }
+            */
     /* 4. 强制内容在超宽模式下不显得空旷 */
-    .view-mode-double .post-content {
-      font-size: 1.2rem; /* 在宽屏下稍微加大一点字号，视觉更协调 */
-    }
     
+    .view-mode-wide .post-content {
+      font-size: 1.2rem;
+      /* 在宽屏下稍微加大一点字号，视觉更协调 */
+    }
     /* 3. 功能工具栏样式 */
+    
     .function-toolbar {
       background: #ffffff;
       padding: 16px 24px;
@@ -45,15 +44,15 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       margin-bottom: 2rem;
     }
-    
     /* 4. 正文样式 */
+    
     .post-content {
       font-size: 1.1rem;
       line-height: 1.85;
       color: #2c3e50;
     }
+    /* 适配：防止代码块和图片断开 */
     
-    /* 适配：防止代码块和图片在分栏处断开 */
     .post-content pre,
     .post-content img,
     .post-content blockquote {
@@ -61,8 +60,8 @@
       max-width: 100%;
       margin-bottom: 1.5rem;
     }
-    
     /* 按钮微调：让操作更显眼 */
+    
     .btn-manage {
       font-weight: 500;
       letter-spacing: 0.5px;
@@ -70,14 +69,14 @@
   </style>
 
   <div class="row justify-content-center mt-4">
-    <div id="main-column" class="view-mode-single">
+    <div id="main-column" class="view-mode-standard">
       <div class="function-toolbar d-flex justify-content-between align-items-center">
         <div class="d-flex gap-2">
           <a href="{% url 'home' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3"><i class="bi bi-house"></i> 首页</a>
 
           <div class="btn-group shadow-sm ms-2" role="group">
-            <button id="btn-single" class="btn btn-sm btn-dark active">单列模式</button>
-            <button id="btn-double" class="btn btn-sm btn-outline-dark">宽屏双列</button>
+            <button id="btn-standard" class="btn btn-sm btn-dark active">标准模式</button>
+            <button id="btn-wide" class="btn btn-sm btn-outline-dark">宽屏模式</button>
           </div>
         </div>
 
@@ -108,39 +107,39 @@
   <script>
     const content = document.getElementById('readable-content')
     const mainColumn = document.getElementById('main-column')
-    const btnSingle = document.getElementById('btn-single')
-    const btnDouble = document.getElementById('btn-double')
+    const btnStandard = document.getElementById('btn-standard')
+    const btnWide = document.getElementById('btn-wide')
     
-    // 逻辑：切换到双列模式
-    btnDouble.addEventListener('click', () => {
+    // 逻辑：切换到宽屏模式
+    btnWide.addEventListener('click', () => {
       // 1. 设置正文分栏
-      content.classList.add('columns-2')
+      //content.classList.add('columns-2')
     
       // 2. 容器宽度从 850px 切换到 1400px (约 1.6 倍)
-      mainColumn.classList.remove('view-mode-single')
-      mainColumn.classList.add('view-mode-double')
+      mainColumn.classList.remove('view-mode-standard')
+      mainColumn.classList.add('view-mode-wide')
     
       // 3. 按钮状态切换
-      btnDouble.classList.replace('btn-outline-dark', 'btn-dark')
-      btnDouble.classList.add('active')
-      btnSingle.classList.replace('btn-dark', 'btn-outline-dark')
-      btnSingle.classList.remove('active')
+      btnWide.classList.replace('btn-outline-dark', 'btn-dark')
+      btnWide.classList.add('active')
+      btnStandard.classList.replace('btn-dark', 'btn-outline-dark')
+      btnStandard.classList.remove('active')
     })
     
-    // 逻辑：切换到单列模式
-    btnSingle.addEventListener('click', () => {
+    // 逻辑：切换到标准模式
+    btnStandard.addEventListener('click', () => {
       // 1. 移除分栏
-      content.classList.remove('columns-2')
+      //content.classList.remove('columns-2')
     
       // 2. 恢复标准阅读宽度
-      mainColumn.classList.remove('view-mode-double')
-      mainColumn.classList.add('view-mode-single')
+      mainColumn.classList.remove('view-mode-wide')
+      mainColumn.classList.add('view-mode-standard')
     
       // 3. 按钮状态切换
-      btnSingle.classList.replace('btn-outline-dark', 'btn-dark')
-      btnSingle.classList.add('active')
-      btnDouble.classList.replace('btn-dark', 'btn-outline-dark')
-      btnDouble.classList.remove('active')
+      btnStandard.classList.replace('btn-outline-dark', 'btn-dark')
+      btnStandard.classList.add('active')
+      btnWide.classList.replace('btn-dark', 'btn-outline-dark')
+      btnWide.classList.remove('active')
     })
   </script>
 {% endblock %}
