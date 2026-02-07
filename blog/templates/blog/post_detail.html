@@ -2,50 +2,132 @@
 {% load markdown_extras %}
 
 {% block content %}
-  <div class="container py-5 mt-5">
-    <div class="row justify-content-center">
-      <div class="col-lg-9" id="main-column">
-        <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm">
-          <a href="{% url 'home' %}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Back</a>
-          <div class="d-flex gap-2">
-            <a href="{% url 'post-update' post.pk %}" class="btn btn-sm btn-primary rounded-pill px-3">Edit</a>
-            <a href="{% url 'post-delete' post.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">Delete</a>
-          </div>
-        </div>
+<div id="scroll-progress" style="position: fixed; top: 0; left: 0; width: 0%; height: 4px; background: #3498db; z-index: 2000;"></div>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-          <div class="card-body p-4 p-md-5 bg-white">
-            <header class="mb-5 text-center">
-              <h1 class="fw-bold display-5 mb-3">{{ post.title }}</h1>
-              <div class="text-muted small">
-                <span><i class="bi bi-person me-1"></i>{{ post.author }}</span>
-                <span class="ms-3"><i class="bi bi-calendar3 me-1"></i>{{ post.beijing_created_at|date:'Y-m-d' }}</span>
-              </div>
-            </header>
-            <hr class="opacity-10 mb-5" />
-            <div class="post-content fs-5" style="line-height: 1.8;">{{ post.content|markdown }}</div>
-          </div>
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center transition-all" id="content-row">
+        <div class="col-lg-9 transition-all" id="main-column">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded-pill shadow-sm border">
+                <a href="{% url 'home' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                    <i class="bi bi-arrow-left"></i> <span class="d-none d-md-inline">Back</span>
+                </a>
+                
+                <div class="d-flex gap-2 align-items-center">
+                    <button id="toggle-width" class="btn btn-sm btn-light rounded-pill px-3 border" title="切换宽度">
+                        <i class="bi bi-arrows-angle-expand" id="width-icon"></i>
+                    </button>
+                    
+                    <div class="vr mx-2 text-muted opacity-25"></div> <a href="{% url 'post-update' post.pk %}" class="btn btn-sm btn-primary rounded-pill px-3">Edit</a>
+                    <a href="{% url 'post-delete' post.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">Delete</a>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+                <div class="card-body p-4 p-md-5 bg-white">
+                    <header class="mb-5 text-center" data-aos="fade-down">
+                        <h1 class="fw-bold display-5 mb-3" style="letter-spacing: -1px;">{{ post.title }}</h1>
+                        <div class="text-muted small d-flex justify-content-center gap-3">
+                            <span><i class="bi bi-person me-1"></i>{{ post.author }}</span>
+                            <span><i class="bi bi-calendar3 me-1"></i>{{ post.beijing_created_at|date:'Y-m-d' }}</span>
+                        </div>
+                    </header>
+                    
+                    <hr class="opacity-10 mb-5" />
+                    
+                    <div class="post-content fs-5" style="line-height: 1.8; text-align: justify;">
+                        {{ post.content|markdown }}
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>
 
-  <style>
-    /* 局部微调：文章内图片圆角 */
+<style>
+    /* 宽度切换的平滑过渡效果 */
+    .transition-all {
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* 全宽模式下的辅助类 */
+    .is-wide {
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+
+    /* 正文样式美化 */
+    .post-content {
+        color: #2c3e50;
+    }
     .post-content img {
-      max-width: 100%;
-      border-radius: 12px;
-      margin: 2rem 0;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
+        max-width: 100%;
+        border-radius: 20px;
+        margin: 2.5rem auto;
+        display: block;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
     }
+    /* 代码块美化 */
     .post-content pre {
-      background: #282c34;
-      padding: 1.5rem;
-      border-radius: 10px;
-      margin: 1.5rem 0;
-      overflow-x: auto;
+        background: #1e1e1e;
+        color: #dcdcdc;
+        padding: 1.5rem;
+        border-radius: 16px;
+        margin: 2rem 0;
+        overflow-x: auto;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        border: 1px solid #333;
     }
-  </style>
+    .post-content code {
+        font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace;
+    }
+    /* 引用块 */
+    .post-content blockquote {
+        border-left: 5px solid #f1c40f;
+        padding-left: 1.5rem;
+        color: #666;
+        font-style: italic;
+        margin: 2rem 0;
+    }
+</style>
+
+<script>
+    const toggleBtn = document.getElementById('toggle-width');
+    const mainColumn = document.getElementById('main-column');
+    const widthIcon = document.getElementById('width-icon');
+
+    // 1. 检查本地存储
+    if (localStorage.getItem('post-wide-mode') === 'true') {
+        enableWideMode();
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        if (mainColumn.classList.contains('col-lg-9')) {
+            enableWideMode();
+            localStorage.setItem('post-wide-mode', 'true');
+        } else {
+            disableWideMode();
+            localStorage.setItem('post-wide-mode', 'false');
+        }
+    });
+
+    function enableWideMode() {
+        mainColumn.classList.replace('col-lg-9', 'col-lg-12');
+        widthIcon.classList.replace('bi-arrows-angle-expand', 'bi-arrows-angle-contract');
+    }
+
+    function disableWideMode() {
+        mainColumn.classList.replace('col-lg-12', 'col-lg-9');
+        widthIcon.classList.replace('bi-arrows-angle-contract', 'bi-arrows-angle-expand');
+    }
+
+    // 滚动进度条逻辑
+    window.onscroll = function() {
+        let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        let scrolled = (winScroll / height) * 100;
+        document.getElementById("scroll-progress").style.width = scrolled + "%";
+    };
+</script>
 {% endblock %}

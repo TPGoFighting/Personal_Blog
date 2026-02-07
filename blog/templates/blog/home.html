@@ -178,7 +178,7 @@
 
   <section id="posts">
     <div class="container">
-      <h2 class="section-title" data-aos="fade-right">LATEST ARTICLE</h2>
+      <h2 class="section-title" data-aos="fade-right">LATEST ARTICLES</h2>
       <div class="row g-5">
         {% for post in posts %}
           <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
@@ -202,9 +202,9 @@
   <section id="guestbook">
     <div class="container text-center">
       <div class="glass-box mx-auto" style="max-width: 800px;" data-aos="fade-up">
-        <h2 class="display-4 fw-900 mb-4">这是一个留言板</h2>
-        <p class="mb-5 fs-5 opacity-75">来留言板分享你的想法。</p>
-        <a href="{% url 'guestbook' %}" class="btn btn-light btn-lg rounded-pill px-5 py-3 fw-bold">进入留言板</a>
+        <h2 class="display-4 fw-900 mb-4">留言板</h2>
+        <p class="mb-5 fs-5 opacity-75">欢迎每一位朋友前来分享你的想法与见解，无论是对文章内容的思考、相关领域的心得探讨，还是日常的学习感悟，这里都愿成为自由表达的阵地。</p>
+        <a href="{% url 'guestbook' %}" class="btn btn-light btn-lg rounded-pill px-5 py-3 fw-bold">进入</a>
       </div>
     </div>
   </section>
