@@ -1,406 +1,51 @@
 {% extends 'blog/base.html' %}
-{% load markdown_extras %} {% block title %}
-  {{ post.title }}
-{% endblock %}
+{% load markdown_extras %}
 
 {% block content %}
-  <style>
-    /* ========== 全局基础优化：统一风格、提升质感 ========== */
-    :root {
-      /* 定义主题色，统一配色（柔和高级，不刺眼） */
-      --primary-color: #2563eb;
-      --secondary-color: #475569;
-      --light-gray: #f8fafc;
-      --border-color: #e2e8f0;
-      --text-dark: #1e293b;
-      --text-muted: #64748b;
-      /* 统一圆角，提升精致感 */
-      --radius-sm: 8px;
-      --radius-md: 16px;
-      --radius-lg: 24px;
-      /* 统一阴影，分层视觉 */
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-      --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* 1. 容器基础样式：丝滑过渡+居中 */
-    #main-column {
-      transition: all 0.4s ease-in-out; /* 更丝滑的过渡 */
-      margin: 0 auto;
-      width: 100%;
-      padding: 0 8px; /* 防止贴边 */
-    }
-    
-    .view-mode-standard {
-      max-width: 1050px !important;
-    }
-    
-    .view-mode-wide {
-      max-width: 75vw !important;
-      width: 75vw !important;
-    }
-    
-    /* 宽屏模式字号适配 */
-    .view-mode-wide .post-content {
-      font-size: 1.2rem;
-      line-height: 1.9; /* 宽屏行高微调，更易读 */
-    }
-    
-    /* ========== 功能工具栏：视觉层次+直觉化 ========== */
-    .function-toolbar {
-      background: white;
-      padding: 18px 24px;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-color);
-      box-shadow: var(--shadow-md);
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-      gap: 12px !important;
-      align-items: center;
-      /* 工具栏hover轻微上浮，提升交互感 */
-      transition: box-shadow 0.3s ease, transform 0.2s ease;
-    }
-    .function-toolbar:hover {
-      box-shadow: var(--shadow-hover);
-      transform: translateY(-1px);
-    }
-    
-    /* ========== 按钮优化：直觉化+美观+反馈 ========== */
-    /* 基础按钮样式统一 */
-    .function-toolbar .btn {
-      font-weight: 500;
-      letter-spacing: 0.3px;
-      min-width: 90px; /* 更大点击区域，符合触屏直觉 */
-      border-radius: var(--radius-sm) !important;
-      transition: all 0.2s ease; /* 按钮状态丝滑切换 */
-      padding: 8px 16px !important;
-      border: 1px solid transparent !important;
-    }
-    /* 活跃按钮：主题色+质感 */
-    .function-toolbar .btn-dark.active {
-      background-color: var(--primary-color) !important;
-      border-color: var(--primary-color) !important;
-      color: white !important;
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
-    }
-    /* 按钮hover/点击反馈（符合直觉：有按压感） */
-    .function-toolbar .btn-outline-dark:hover {
-      background-color: var(--light-gray) !important;
-      border-color: var(--border-color) !important;
-    }
-    .function-toolbar .btn-primary:hover {
-      background-color: #1d4ed8 !important;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-    }
-    .function-toolbar .btn:active {
-      transform: translateY(1px); /* 点击按压效果，符合物理直觉 */
-    }
-    /* 编辑/删除按钮：视觉区分，核心操作更突出 */
-    .btn-manage {
-      min-width: 100px !important;
-    }
-    .btn-outline-danger:hover {
-      background-color: #fef2f2 !important;
-      color: #dc2626 !important;
-    }
-    
-    /* ========== 正文区域：层次+可读性 ========== */
-    .post-content {
-      font-size: 1.1rem;
-      line-height: 1.85;
-      color: var(--text-dark);
-      /* 文字抗锯齿，更清晰 */
-      -webkit-font-smoothing: antialiased;
-    }
-    /* 标题层级：视觉区分更明显 */
-    .post-content h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin: 2rem 0 1rem;
-      color: var(--text-dark);
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.5rem;
-    }
-    .post-content h2 {
-      font-size: 1.6rem;
-      font-weight: 600;
-      margin: 1.8rem 0 0.8rem;
-      color: var(--text-dark);
-    }
-    .post-content h3 {
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin: 1.5rem 0 0.6rem;
-      color: var(--text-dark);
-    }
-    /* 代码块美化：更精致 */
-    .post-content pre {
-      overflow-x: auto;
-      padding: 1.2rem;
-      border-radius: var(--radius-sm);
-      background-color: var(--light-gray) !important;
-      border: 1px solid var(--border-color);
-      font-size: 0.95rem;
-      margin: 1.5rem 0;
-    }
-    /* 图片美化：圆角+阴影，不突兀 */
-    .post-content img {
-      object-fit: contain;
-      border-radius: var(--radius-sm);
-      box-shadow: var(--shadow-sm);
-      margin: 1.5rem auto;
-      display: block; /* 图片居中，符合阅读直觉 */
-    }
-    /* 块引用美化：视觉引导 */
-    .post-content blockquote {
-      border-left: 4px solid var(--primary-color);
-      padding: 1rem 1.5rem;
-      background-color: var(--light-gray);
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      margin: 1.5rem 0;
-      color: var(--text-muted);
-    }
-    
-    /* ========== 文章卡片：质感提升 ========== */
-    .card {
-      border: none !important;
-      box-shadow: var(--shadow-md);
-      border-radius: var(--radius-md) !important;
-      overflow: hidden;
-      transition: box-shadow 0.3s ease;
-    }
-    .card:hover {
-      box-shadow: var(--shadow-hover);
-    }
-    .card-body {
-      padding: 40px 48px !important;
-    }
-    /* 文章标题：更醒目 */
-    .card-body h1 {
-      font-size: 2.2rem !important;
-      font-weight: 700;
-      color: var(--text-dark);
-      line-height: 1.3;
-      margin-bottom: 1.2rem !important;
-    }
-    /* 作者/时间信息：美观+直觉 */
-    .card-body .text-muted {
-      font-size: 0.95rem;
-      color: var(--text-muted) !important;
-    }
-    .card-body .text-muted i {
-      margin-right: 6px; /* 图标和文字间距，更易读 */
-      color: var(--primary-color); /* 图标点缀，引导视觉 */
-    }
-    
-    /* ========== 返回顶部按钮（符合长文阅读直觉） ========== */
-    .back-to-top {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      box-shadow: var(--shadow-md);
-      display: none; /* 默认隐藏 */
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      z-index: 999;
-    }
-    .back-to-top:hover {
-      background-color: #1d4ed8;
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-hover);
-    }
-    .back-to-top.show {
-      display: flex;
-    }
-    
-    /* ========== 移动端适配（768px以下）：直觉+美观 ========== */
-    @media (max-width: 768px) {
-      /* 1. 核心修复：添加顶部安全内边距（适配刘海屏/导航栏） */
-      body {
-        padding: env(safe-area-inset-top, 20px) 8px 8px !important; /* 优先用系统安全区域，兜底20px */
-        background-color: var(--light-gray) !important;
-      }
-      /* 2. 容器适配：增加顶部margin，远离导航栏 */
-      #main-column {
-        max-width: 92vw !important;
-        width: 92vw !important;
-        margin-top: 10px !important; /* 额外增加间距，避免紧贴顶部 */
-      }
-      /* 3. 工具栏适配：确保顶部不被遮挡 */
-      .function-toolbar {
-        padding: 14px 16px;
-        margin-bottom: 1.2rem;
-        gap: 8px !important;
-        margin-top: 8px !important; /* 工具栏自身顶部间距 */
-        position: relative; /* 防止被其他元素覆盖 */
-        z-index: 10; /* 提高层级，确保显示在最上层 */
-      }
-      .btn-manage {
-        min-width: 90px !important;
-      }
-      /* 卡片适配 */
-      .card-body {
-        padding: 24px 20px !important;
-      }
-      .card-body h1 {
-        font-size: 1.8rem !important;
-        line-height: 1.4;
-      }
-      /* 正文适配 */
-      .post-content {
-        font-size: 1rem !important;
-        line-height: 1.8;
-      }
-      .post-content pre {
-        padding: 1rem;
-        font-size: 0.85rem;
-      }
-      /* 隐藏模式切换（移动端无需） */
-      .function-toolbar .btn-group {
-        display: none !important;
-      }
-      /* 返回顶部按钮适配移动端 */
-      .back-to-top {
-        bottom: 20px;
-        right: 20px;
-        width: 44px;
-        height: 44px;
-      }
-    }
-    
-    /* 平板适配（768-992px） */
-    @media (min-width: 769px) and (max-width: 992px) {
-      .view-mode-standard {
-        max-width: 90vw !important;
-      }
-      .post-content {
-        font-size: 1.05rem;
-      }
-      .card-body {
-        padding: 32px 36px !important;
-      }
-    }
-  </style>
-
-  <!-- 返回顶部按钮（长文章阅读后返回顶部，符合直觉） -->
-  <button class="back-to-top" id="backToTop"><i class="bi bi-arrow-up"></i></button>
-
-  <div class="row justify-content-center mt-4 mb-8">
-    <div id="main-column" class="view-mode-standard">
-      <div class="function-toolbar d-flex justify-content-between align-items-center">
-        <div class="d-flex gap-2">
-          <a href="{% url 'home' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3"><i class="bi bi-house me-1"></i> 首页 <!-- 图标+文字，更直观 --></a>
-          <div class="btn-group shadow-sm ms-2" role="group">
-            <button id="btn-standard" class="btn btn-sm btn-dark active"><i class="bi bi-layout-text-sidebar-reverse me-1"></i> 标准模式 <!-- 图标引导，符合直觉 --></button>
-            <button id="btn-wide" class="btn btn-sm btn-outline-dark"><i class="bi bi-layout-wide me-1"></i> 宽屏显示</button>
+  <div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-9" id="main-column">
+        <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm">
+          <a href="{% url 'home' %}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Back</a>
+          <div class="d-flex gap-2">
+            <a href="{% url 'post-update' post.pk %}" class="btn btn-sm btn-primary rounded-pill px-3">Edit</a>
+            <a href="{% url 'post-delete' post.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">Delete</a>
           </div>
         </div>
 
-        <div class="d-flex gap-2">
-          <a href="{% url 'post-update' post.pk %}?next={{ request.get_full_path }}" class="btn btn-sm btn-primary btn-manage rounded-pill px-4 shadow-sm"><i class="bi bi-pencil-square me-1"></i> 编辑</a>
-          <a href="{% url 'post-delete' post.pk %}?next={{ request.get_full_path }}" class="btn btn-sm btn-outline-danger rounded-pill px-3"><i class="bi bi-trash me-1"></i> 删除</a>
-        </div>
-      </div>
-
-      <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-        <div class="card-body p-4 p-md-5">
-          <header class="mb-6">
-            <!-- 加大间距，提升层次 -->
-            <h1 class="fw-bold mb-3" style="color: #1a202c; font-size: 2.2rem;">{{ post.title }}</h1>
-            <div class="d-flex align-items-center text-muted small flex-wrap gap-2">
-              <!-- 移动端换行，避免挤叠 -->
-              <span class="me-3"><i class="bi bi-person-circle"></i> {{ post.author }}</span>
-              <span><i class="bi bi-calendar3"></i> {{ post.beijing_created_at|date:'Y年m月d日 H:i' }}</span>
-            </div>
-          </header>
-
-          <hr class="mb-6" style="opacity: 0.1; border-color: var(--border-color);" /> <!-- 分割线更柔和 -->
-
-          <div id="readable-content" class="post-content">{{ post.content|markdown }}</div>
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+          <div class="card-body p-4 p-md-5 bg-white">
+            <header class="mb-5 text-center">
+              <h1 class="fw-bold display-5 mb-3">{{ post.title }}</h1>
+              <div class="text-muted small">
+                <span><i class="bi bi-person me-1"></i>{{ post.author }}</span>
+                <span class="ms-3"><i class="bi bi-calendar3 me-1"></i>{{ post.beijing_created_at|date:'Y-m-d' }}</span>
+              </div>
+            </header>
+            <hr class="opacity-10 mb-5" />
+            <div class="post-content fs-5" style="line-height: 1.8;">{{ post.content|markdown }}</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script>
-    // 基础变量
-    const content = document.getElementById('readable-content')
-    const mainColumn = document.getElementById('main-column')
-    const btnStandard = document.getElementById('btn-standard')
-    const btnWide = document.getElementById('btn-wide')
-    const backToTop = document.getElementById('backToTop')
-    
-    // 1. 模式切换逻辑（保留功能，优化反馈）
-    btnWide.addEventListener('click', () => {
-      mainColumn.classList.remove('view-mode-standard')
-      mainColumn.classList.add('view-mode-wide')
-      // 按钮状态切换（视觉反馈更明显）
-      btnWide.classList.replace('btn-outline-dark', 'btn-dark')
-      btnWide.classList.add('active')
-      btnStandard.classList.replace('btn-dark', 'btn-outline-dark')
-      btnStandard.classList.remove('active')
-      // 提示用户（可选，增强直觉）
-      // alert('已切换为宽屏显示，阅读更舒适～')
-    })
-    
-    btnStandard.addEventListener('click', () => {
-      mainColumn.classList.remove('view-mode-wide')
-      mainColumn.classList.add('view-mode-standard')
-      // 按钮状态切换
-      btnStandard.classList.replace('btn-outline-dark', 'btn-dark')
-      btnStandard.classList.add('active')
-      btnWide.classList.replace('btn-dark', 'btn-outline-dark')
-      btnWide.classList.remove('active')
-    })
-    
-    // 2. 返回顶部按钮（符合长文阅读直觉：滚动后显示）
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) {
-        // 滚动超过300px显示
-        backToTop.classList.add('show')
-      } else {
-        backToTop.classList.remove('show')
-      }
-    })
-    backToTop.addEventListener('click', () => {
-      // 平滑滚动到顶部（符合现代交互直觉，不是瞬间跳转）
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      })
-    })
-    
-    // 3. 窗口大小变化适配（防止布局错乱）
-    window.addEventListener('resize', () => {
-      if (window.innerWidth <= 768) {
-        mainColumn.classList.remove('view-mode-wide')
-        mainColumn.classList.add('view-mode-standard')
-        // 同步按钮状态
-        btnStandard.classList.replace('btn-outline-dark', 'btn-dark')
-        btnStandard.classList.add('active')
-        btnWide.classList.replace('btn-dark', 'btn-outline-dark')
-        btnWide.classList.remove('active')
-      }
-    })
-    
-    // 4. 图片加载反馈（可选，增强直觉）
-    const images = document.querySelectorAll('.post-content img')
-    images.forEach((img) => {
-      img.addEventListener('load', () => {
-        img.style.opacity = '1'
-      })
-      img.style.opacity = '0.8' // 加载中半透明，加载完成全显
-      img.style.transition = 'opacity 0.3s ease'
-    })
-  </script>
+  <style>
+    /* 局部微调：文章内图片圆角 */
+    .post-content img {
+      max-width: 100%;
+      border-radius: 12px;
+      margin: 2rem 0;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .post-content pre {
+      background: #282c34;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+  </style>
 {% endblock %}

@@ -1,43 +1,289 @@
 {% extends 'blog/base.html' %}
-{% load markdown_extras %} {% block content %}
-  <div class="row mb-4">
-    <div class="col">
-      <h1 class="display-6" style="font-family: 'Noto Sans SC', sans-serif; font-weight: 600; letter-spacing: 0.5px;">Welcome to TP's blog!</h1>
-      {% if query %}
-        <p class="text-muted">
-          正在搜索包含 "<strong>{{ query }}</strong>" 的文章：
-        </p>
-      {% endif %}
+{% load static %}
+{% load markdown_extras %}
+
+{% block content %}
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  <style>
+    /* --- 全局交互与 Lenis 优化 --- */
+    :root {
+      --cb-smooth: cubic-bezier(0.16, 1, 0.3, 1); /* Cyclemon 风格缓动曲线 */
+      --accent-color: #3498db;
+    }
+    
+    html.lenis,
+    html.lenis body {
+      height: auto;
+    }
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+    
+    /* 进度条样式 */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 4px;
+      background: var(--accent-color);
+      z-index: 2000;
+      transition: width 0.1s ease-out;
+    }
+    
+    /* --- 通用布局 --- */
+    section {
+      padding: 140px 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .section-title {
+      font-family: var(--font-heading);
+      font-weight: 900;
+      font-size: clamp(3rem, 8vw, 5rem);
+      text-transform: uppercase;
+      margin-bottom: 60px;
+      letter-spacing: -2px;
+    }
+    
+    /* --- 1. Hero Section --- */
+    #hero {
+      background: #f4f4f4;
+      margin-top: -80px;
+      text-align: center;
+    }
+    #hero h1 {
+      font-size: clamp(4rem, 15vw, 9rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #2c3e50 0%, var(--accent-color) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: heroFloat 4s ease-in-out infinite;
+    }
+    @keyframes heroFloat {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+    
+    /* --- 2. Posts Section (纯文字卡片优化) --- */
+    #posts {
+      background: #ffffff;
+    }
+    .post-card {
+      border: 1px solid #eee; /* 淡淡的边框代替图片界限 */
+      border-radius: 28px;
+      transition: all 0.6s var(--cb-smooth);
+      background: #fff;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .post-card:hover {
+      transform: translateY(-12px);
+      border-color: var(--accent-color);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.06);
+    }
+    .card-body {
+      padding: 2.5rem !important;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .post-category {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent-color);
+      margin-bottom: 1.2rem;
+    }
+    
+    .post-title-link {
+      color: #2c3e50;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .post-card:hover .post-title-link {
+      color: var(--accent-color);
+    }
+    
+    /* --- 3. Guestbook Section --- */
+    #guestbook {
+      background: #1a1a1a;
+      background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80');
+      background-attachment: fixed;
+      background-size: cover;
+      background-blend-mode: overlay;
+      color: #fff;
+    }
+    .glass-box {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 60px;
+      border-radius: 40px;
+    }
+    
+    /* --- 4. About Section --- */
+    #about {
+      background: #f1c40f;
+      color: #2c3e50;
+    }
+    .about-avatar {
+      width: 240px;
+      height: 240px;
+      border: 10px solid #fff;
+      object-fit: cover;
+      transition: transform 0.5s var(--cb-smooth);
+    }
+    .about-avatar:hover {
+      transform: rotate(5deg) scale(1.1);
+    }
+    
+    .more-link {
+      font-size: 1.2rem;
+      transition: all 0.4s var(--cb-smooth);
+      display: inline-flex;
+      align-items: center;
+      color: #2c3e50 !important;
+    }
+    .more-link:hover {
+      transform: translateX(10px);
+    }
+  </style>
+
+  <div id="scroll-progress"></div>
+
+  <section id="hero">
+    <div class="container" data-aos="zoom-out" data-aos-duration="1500">
+      <h1 class="display-1">TP ' BLOGS</h1>
+      <p class="lead text-muted" style="letter-spacing: 10px; font-weight: 700;">TPGHFIGHTING</p>
+      <div class="mt-5">
+        <a href="#posts" class="btn btn-outline-dark rounded-circle p-3 shadow-sm" style="width: 60px; height: 60px;"><i class="bi bi-arrow-down fs-4"></i></a>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="row">
-    {% for post in posts %}
-      <div class="col-md-6 mb-4">
-        <div class="content-section post-card h-100 d-flex flex-column">
-          <div class="post-header">
-            <a href="{% url 'post-detail' post.pk %}" class="post-title">{{ post.title }}</a>
-          </div>
-
-          <div class="post-excerpt flex-grow-1">{{ post.content|markdown|striptags|truncatechars:120 }}</div>
-
-          <div class="post-footer d-flex justify-content-between align-items-center">
-            <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ post.beijing_created_at|date:'Y年m月d日 H:i' }}</small>
-            <div class="btn-group gap-2">
-              <a href="{% url 'post-update' post.pk %}?next={{ request.get_full_path }}" class="btn-action edit">编辑</a>
-              <a href="{% url 'post-delete' post.pk %}?next={{ request.get_full_path }}" class="btn-action delete">删除</a>
+  <section id="posts">
+    <div class="container">
+      <h2 class="section-title" data-aos="fade-right">LATEST ARTICLE</h2>
+      <div class="row g-5">
+        {% for post in posts %}
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+            <div class="card post-card">
+              <div class="card-body">
+                <span class="post-category">Technical Blog</span>
+                <h3 class="fw-bold mb-3"><a href="{% url 'post-detail' post.pk %}" class="post-title-link">{{ post.title }}</a></h3>
+                <p class="text-secondary mb-4" style="line-height: 1.8; opacity: 0.85;">{{ post.content|markdown|striptags|truncatechars:120 }}</p>
+                <div class="mt-auto pt-4 d-flex justify-content-between align-items-center border-top">
+                  <small class="text-muted fw-bold text-uppercase" style="letter-spacing: 1px;">{{ post.beijing_created_at|date:'M d, Y' }}</small>
+                  <a href="{% url 'post-detail' post.pk %}" class="text-dark fw-bold text-decoration-none small">READ MORE <i class="bi bi-arrow-right ms-1"></i></a>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        {% endfor %}
       </div>
-    {% empty %}
-      <div class="col-12 text-center py-5">
-        <div class="content-section">
-          <p class="text-muted mb-0">
-            暂时没有找到文章。 <a href="{% url 'home' %}" class="text-primary text-decoration-none">返回首页</a>
+    </div>
+  </section>
+
+  <section id="guestbook">
+    <div class="container text-center">
+      <div class="glass-box mx-auto" style="max-width: 800px;" data-aos="fade-up">
+        <h2 class="display-4 fw-900 mb-4">这是一个留言板</h2>
+        <p class="mb-5 fs-5 opacity-75">来留言板分享你的想法。</p>
+        <a href="{% url 'guestbook' %}" class="btn btn-light btn-lg rounded-pill px-5 py-3 fw-bold">进入留言板</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-5 text-center mb-5 mb-md-0" data-aos="fade-right">
+          <img src="{% static 'blog/images/logo2.png' %}" class="about-avatar rounded-circle shadow-lg" />
+        </div>
+        <div class="col-md-7" data-aos="fade-left">
+          <h2 class="fw-bold display-4 mb-4">关于 加油T小P</h2>
+          <p class="fs-5 mb-4" style="line-height: 1.8; text-align: justify;">
+            我是 <strong>TP</strong>，南邮大二学生。我热衷于 <strong>三维视觉</strong> 和 <strong>机器学习</strong>，正在探索 Open3D 和 Pointnet++ 的无限可能。
           </p>
+          <div class="d-flex gap-2 mb-4 flex-wrap">
+            <span class="badge bg-dark rounded-pill px-3 py-2">Django</span>
+            <span class="badge bg-dark rounded-pill px-3 py-2">3D Vision</span>
+            <span class="badge bg-dark rounded-pill px-3 py-2">Python</span>
+          </div>
+          <div class="mb-5">
+            <a href="{% url 'about' %}" class="more-link fw-bold text-decoration-none">点击这里了解更多 <i class="bi bi-arrow-right-circle-fill ms-2 fs-4"></i></a>
+          </div>
+          <div class="d-flex gap-4 fs-2">
+            <a href="https://github.com/TPGoFighting" class="text-dark"><i class="bi bi-github"></i></a>
+            <a href="mailto:tpgofighting@163.com" class="text-dark"><i class="bi bi-envelope-at"></i></a>
+          </div>
         </div>
       </div>
-    {% endfor %}
-  </div>
+    </div>
+  </section>
+
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <script>
+    // --- 1. 初始化 Lenis 平滑滚动 ---
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true
+    })
+    
+    function raf(time) {
+      lenis.raf(time)
+      requestAnimationFrame(raf)
+    }
+    requestAnimationFrame(raf)
+    
+    // --- 2. 滚动进度条 & 动画刷新 ---
+    lenis.on('scroll', (e) => {
+      let winScroll = window.scrollY
+      let height = document.documentElement.scrollHeight - document.documentElement.clientHeight
+      let scrolled = (winScroll / height) * 100
+      const progress = document.getElementById('scroll-progress')
+      if (progress) progress.style.width = scrolled + '%'
+    
+      // 关键：平滑滚动中动态刷新 AOS 触发位置
+      AOS.refresh()
+    })
+    
+    // --- 3. 初始化 AOS ---
+    AOS.init({
+      duration: 1000,
+      easing: 'ease-in-out-cubic',
+      once: false,
+      mirror: true
+    })
+    
+    // --- 4. 锚点跳转联动 Lenis ---
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault()
+        const targetId = this.getAttribute('href')
+        const target = document.querySelector(targetId)
+        if (target) {
+          lenis.scrollTo(target, { offset: -80 })
+        }
+      })
+    })
+  </script>
 {% endblock %}
