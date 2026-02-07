@@ -23,7 +23,7 @@
       --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
       --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.1);
     }
-
+    
     /* 1. 容器基础样式：丝滑过渡+居中 */
     #main-column {
       transition: all 0.4s ease-in-out; /* 更丝滑的过渡 */
@@ -46,7 +46,7 @@
       font-size: 1.2rem;
       line-height: 1.9; /* 宽屏行高微调，更易读 */
     }
-
+    
     /* ========== 功能工具栏：视觉层次+直觉化 ========== */
     .function-toolbar {
       background: white;
@@ -65,7 +65,7 @@
       box-shadow: var(--shadow-hover);
       transform: translateY(-1px);
     }
-
+    
     /* ========== 按钮优化：直觉化+美观+反馈 ========== */
     /* 基础按钮样式统一 */
     .function-toolbar .btn {
@@ -105,7 +105,7 @@
       background-color: #fef2f2 !important;
       color: #dc2626 !important;
     }
-
+    
     /* ========== 正文区域：层次+可读性 ========== */
     .post-content {
       font-size: 1.1rem;
@@ -162,7 +162,7 @@
       margin: 1.5rem 0;
       color: var(--text-muted);
     }
-
+    
     /* ========== 文章卡片：质感提升 ========== */
     .card {
       border: none !important;
@@ -194,7 +194,7 @@
       margin-right: 6px; /* 图标和文字间距，更易读 */
       color: var(--primary-color); /* 图标点缀，引导视觉 */
     }
-
+    
     /* ========== 返回顶部按钮（符合长文阅读直觉） ========== */
     .back-to-top {
       position: fixed;
@@ -222,29 +222,28 @@
     .back-to-top.show {
       display: flex;
     }
-
+    
     /* ========== 移动端适配（768px以下）：直觉+美观 ========== */
     @media (max-width: 768px) {
-      /* 容器适配 */
+      /* 1. 核心修复：添加顶部安全内边距（适配刘海屏/导航栏） */
+      body {
+        padding: env(safe-area-inset-top, 20px) 8px 8px !important; /* 优先用系统安全区域，兜底20px */
+        background-color: var(--light-gray) !important;
+      }
+      /* 2. 容器适配：增加顶部margin，远离导航栏 */
       #main-column {
         max-width: 92vw !important;
         width: 92vw !important;
+        margin-top: 10px !important; /* 额外增加间距，避免紧贴顶部 */
       }
-      body {
-        padding: 8px !important;
-        background-color: var(--light-gray) !important;
-      }
-      /* 工具栏适配 */
+      /* 3. 工具栏适配：确保顶部不被遮挡 */
       .function-toolbar {
         padding: 14px 16px;
         margin-bottom: 1.2rem;
         gap: 8px !important;
-      }
-      /* 按钮适配：更大触控区域，符合手机操作直觉 */
-      .function-toolbar .btn {
-        padding: 7px 14px !important;
-        font-size: 0.85rem !important;
-        min-width: 80px !important;
+        margin-top: 8px !important; /* 工具栏自身顶部间距 */
+        position: relative; /* 防止被其他元素覆盖 */
+        z-index: 10; /* 提高层级，确保显示在最上层 */
       }
       .btn-manage {
         min-width: 90px !important;
@@ -278,7 +277,7 @@
         height: 44px;
       }
     }
-
+    
     /* 平板适配（768-992px） */
     @media (min-width: 769px) and (max-width: 992px) {
       .view-mode-standard {
@@ -294,42 +293,32 @@
   </style>
 
   <!-- 返回顶部按钮（长文章阅读后返回顶部，符合直觉） -->
-  <button class="back-to-top" id="backToTop">
-    <i class="bi bi-arrow-up"></i>
-  </button>
+  <button class="back-to-top" id="backToTop"><i class="bi bi-arrow-up"></i></button>
 
   <div class="row justify-content-center mt-4 mb-8">
     <div id="main-column" class="view-mode-standard">
       <div class="function-toolbar d-flex justify-content-between align-items-center">
         <div class="d-flex gap-2">
-          <a href="{% url 'home' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
-            <i class="bi bi-house me-1"></i> 首页 <!-- 图标+文字，更直观 -->
-          </a>
+          <a href="{% url 'home' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3"><i class="bi bi-house me-1"></i> 首页 <!-- 图标+文字，更直观 --></a>
           <div class="btn-group shadow-sm ms-2" role="group">
-            <button id="btn-standard" class="btn btn-sm btn-dark active">
-              <i class="bi bi-layout-text-sidebar-reverse me-1"></i> 标准模式 <!-- 图标引导，符合直觉 -->
-            </button>
-            <button id="btn-wide" class="btn btn-sm btn-outline-dark">
-              <i class="bi bi-layout-wide me-1"></i> 宽屏显示
-            </button>
+            <button id="btn-standard" class="btn btn-sm btn-dark active"><i class="bi bi-layout-text-sidebar-reverse me-1"></i> 标准模式 <!-- 图标引导，符合直觉 --></button>
+            <button id="btn-wide" class="btn btn-sm btn-outline-dark"><i class="bi bi-layout-wide me-1"></i> 宽屏显示</button>
           </div>
         </div>
 
         <div class="d-flex gap-2">
-          <a href="{% url 'post-update' post.pk %}?next={{ request.get_full_path }}" class="btn btn-sm btn-primary btn-manage rounded-pill px-4 shadow-sm">
-            <i class="bi bi-pencil-square me-1"></i> 编辑
-          </a>
-          <a href="{% url 'post-delete' post.pk %}?next={{ request.get_full_path }}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-            <i class="bi bi-trash me-1"></i> 删除
-          </a>
+          <a href="{% url 'post-update' post.pk %}?next={{ request.get_full_path }}" class="btn btn-sm btn-primary btn-manage rounded-pill px-4 shadow-sm"><i class="bi bi-pencil-square me-1"></i> 编辑</a>
+          <a href="{% url 'post-delete' post.pk %}?next={{ request.get_full_path }}" class="btn btn-sm btn-outline-danger rounded-pill px-3"><i class="bi bi-trash me-1"></i> 删除</a>
         </div>
       </div>
 
       <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
         <div class="card-body p-4 p-md-5">
-          <header class="mb-6"> <!-- 加大间距，提升层次 -->
+          <header class="mb-6">
+            <!-- 加大间距，提升层次 -->
             <h1 class="fw-bold mb-3" style="color: #1a202c; font-size: 2.2rem;">{{ post.title }}</h1>
-            <div class="d-flex align-items-center text-muted small flex-wrap gap-2"> <!-- 移动端换行，避免挤叠 -->
+            <div class="d-flex align-items-center text-muted small flex-wrap gap-2">
+              <!-- 移动端换行，避免挤叠 -->
               <span class="me-3"><i class="bi bi-person-circle"></i> {{ post.author }}</span>
               <span><i class="bi bi-calendar3"></i> {{ post.beijing_created_at|date:'Y年m月d日 H:i' }}</span>
             </div>
@@ -350,7 +339,7 @@
     const btnStandard = document.getElementById('btn-standard')
     const btnWide = document.getElementById('btn-wide')
     const backToTop = document.getElementById('backToTop')
-
+    
     // 1. 模式切换逻辑（保留功能，优化反馈）
     btnWide.addEventListener('click', () => {
       mainColumn.classList.remove('view-mode-standard')
@@ -373,10 +362,11 @@
       btnWide.classList.replace('btn-dark', 'btn-outline-dark')
       btnWide.classList.remove('active')
     })
-
+    
     // 2. 返回顶部按钮（符合长文阅读直觉：滚动后显示）
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) { // 滚动超过300px显示
+      if (window.scrollY > 300) {
+        // 滚动超过300px显示
         backToTop.classList.add('show')
       } else {
         backToTop.classList.remove('show')
@@ -389,7 +379,7 @@
         behavior: 'smooth'
       })
     })
-
+    
     // 3. 窗口大小变化适配（防止布局错乱）
     window.addEventListener('resize', () => {
       if (window.innerWidth <= 768) {
@@ -402,10 +392,10 @@
         btnWide.classList.remove('active')
       }
     })
-
+    
     // 4. 图片加载反馈（可选，增强直觉）
     const images = document.querySelectorAll('.post-content img')
-    images.forEach(img => {
+    images.forEach((img) => {
       img.addEventListener('load', () => {
         img.style.opacity = '1'
       })

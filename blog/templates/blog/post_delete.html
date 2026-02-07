@@ -8,16 +8,13 @@
         确定要删除帖子 <span style="color: #dc2626; font-weight: 500;">"{{ post.title }}"</span> 吗？
         <br />此操作不可逆，删除后内容将永久丢失。
       </p>
-      
+
       <form method="post" style="display: flex; gap: 1rem; align-items: center; margin: 0;">
         {% csrf_token %}
-        
+
         <button type="submit" style="flex: 1; padding: 0.7rem 0; font-size: 0.95rem; font-weight: 500; color: #fff; background: #dc2626; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.2s ease-in-out; border: 1px solid transparent;">确认删除</button>
-        
-        <a href="{{ request.GET.next|default:'/' }}" 
-           style="flex: 1; padding: 0.7rem 0; font-size: 0.95rem; font-weight: 500; color: #374151; background: #f3f4f6; border: none; border-radius: 8px; text-align: center; text-decoration: none; transition: background-color 0.2s ease-in-out;">
-           取消
-        </a>
+
+        <a href="{{ request.GET.next|default:'/' }}" style="flex: 1; padding: 0.7rem 0; font-size: 0.95rem; font-weight: 500; color: #374151; background: #f3f4f6; border: none; border-radius: 8px; text-align: center; text-decoration: none; transition: background-color 0.2s ease-in-out;">取消</a>
       </form>
     </div>
   </div>

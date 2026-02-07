@@ -1,36 +1,148 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
-  <div class="content-section">
-    <h1 class="mb-4 fw-semibold text-secondary">
-      {{ form.instance.pk|yesno:"编辑文章,发布新文章" }}
-    </h1>
+  <!-- 自定义美化样式 -->
+  <style>
+    /* 页面主体容器美化 */
+    .content-section {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 2.5rem;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f0f2f5;
+    }
     
+    /* 标题样式增强 */
+    .form-title {
+      color: #2d3748;
+      font-weight: 600;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e8f4f8;
+      margin-bottom: 2rem !important;
+    }
+    
+    /* 表单标签样式 */
+    .form-label {
+      color: #4a5568;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    
+    /* 表单输入框美化 */
+    .form-control {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+    
+    /* 输入框聚焦效果 */
+    .form-control:focus {
+      border-color: #4299e1;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+      outline: none;
+    }
+    
+    /* 错误状态样式优化 */
+    .form-control.is-invalid {
+      border-color: #e53e3e;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02), 0 0 0 3px rgba(229, 62, 62, 0.1);
+    }
+    
+    .invalid-feedback {
+      color: #e53e3e;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+    
+    /* 内容编辑框专项优化（适配markdown编辑） */
+    #id_content {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      resize: vertical; /* 仅允许垂直拉伸 */
+      min-height: 300px; /* 增大默认高度 */
+    }
+    
+    /* 按钮样式美化 */
+    .btn {
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      padding: 0.6rem 1.2rem !important;
+    }
+    
+    .btn-primary {
+      background-color: #4299e1;
+      border-color: #4299e1;
+    }
+    
+    .btn-primary:hover {
+      background-color: #3182ce;
+      border-color: #3182ce;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(66, 153, 225, 0.2);
+    }
+    
+    .btn-outline-secondary:hover {
+      background-color: #f8f9fa;
+      transform: translateY(-1px);
+    }
+    
+    /* 响应式适配 */
+    @media (max-width: 768px) {
+      .content-section {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+    
+      #id_content {
+        min-height: 200px;
+      }
+    
+      .d-flex {
+        flex-direction: column;
+      }
+    
+      .btn {
+        width: 100%;
+        margin-bottom: 0.75rem;
+      }
+    }
+  </style>
+
+  <div class="content-section">
+    <!-- 优化标题样式 -->
+    <h1 class="form-title mb-5">{{ form.instance.pk|yesno:'编辑文章,发布新文章' }}</h1>
+
     <form method="post" novalidate>
       {% csrf_token %}
-      
-      <input type="hidden" name="next" value="{{ request.GET.next }}">
+      <input type="hidden" name="next" value="{{ request.GET.next }}" />
 
       {% for field in form %}
-        <div class="mb-4">
-          <label for="{{ field.id_for_label }}" class="form-label fw-medium mb-2">{{ field.label }}</label>
+        <div class="mb-5">
+          <!-- 增大字段间距，提升呼吸感 -->
+          <label for="{{ field.id_for_label }}" class="form-label mb-2">{{ field.label }}</label>
+
           {% if field.name == 'content' %}
-            <textarea name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control {% if field.errors %}is-invalid{% endif %}" rows="8">{{ field.value|default:'' }}</textarea>
+            <textarea name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control {% if field.errors %}is-invalid{% endif %}" rows="12">{{ field.value|default:'' }}</textarea>
           {% else %}
-            <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default:'' }}" class="form-control {% if field.errors %}is-invalid{% endif %}">
+            <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default:'' }}" class="form-control {% if field.errors %}is-invalid{% endif %}" />
           {% endif %}
+
           {% if field.errors %}
             <div class="invalid-feedback mt-1">{{ field.errors.0 }}</div>
           {% endif %}
         </div>
       {% endfor %}
 
-      <div class="d-flex gap-3 mt-5">
-        <button type="submit" class="btn btn-primary px-4 py-2">
-          {{ form.instance.pk|yesno:"保存修改,发布文章" }}
-        </button>
-        
-        <a href="{{ request.GET.next|default:'/' }}" class="btn btn-outline-secondary px-4 py-2">取消</a>
+      <!-- 按钮区域优化 -->
+      <div class="d-flex gap-3 mt-6">
+        <button type="submit" class="btn btn-primary">{{ form.instance.pk|yesno:'保存修改,发布文章' }}</button>
+        <a href="{{ request.GET.next|default:'/' }}" class="btn btn-outline-secondary">取消</a>
       </div>
     </form>
   </div>
