@@ -17,11 +17,6 @@
 - **博客预览地址**: [点击这里访问博客链接](https://tpgofighting.top)（因服务器原因现已失效）
 - **主要内容**: 前端开发、后端探索、算法笔记、读书感悟。
 
-## 🛠️ 技术栈
-这个博客是基于以下技术构建的：
-- **框架**: [Vue.js / React / Hexo / Hugo]
-- **部署**: [GitHub Pages / Vercel / Netlify]
-- **交互**: [Valine / Gitalk 评论系统]
 
 ## 📂 目录结构
 ```text
